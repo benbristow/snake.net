@@ -20,10 +20,10 @@ namespace Snake
 
             //One does not simply leave the game loop
             while (true)
-            {                
+            {
                 gameLoop();
             }
-        }        
+        }
 
         static void scaleToWindowSize()
         {
@@ -42,7 +42,7 @@ namespace Snake
         }
 
         static void gameLoop()
-        {          
+        {
             //Reset title
             Console.Title = "Snake.NET | Score: 0";
 
@@ -79,33 +79,45 @@ namespace Snake
 
                 //Draw food     
                 drawFood(fd);
-                
+
                 //Take it easy
                 Thread.Sleep(60);
 
                 //Take any user input if any
                 Console.SetCursorPosition(0, 0);
-                if (Console.KeyAvailable)                
-                {                    
+                if (Console.KeyAvailable)
+                {
                     var c = Console.ReadKey();
 
                     switch (c.Key)
                     {
                         case ConsoleKey.UpArrow:
                         case ConsoleKey.W:
-                            snk.direction = 1;
+                            if (snk.direction != 3)
+                            {
+                                snk.direction = 1;
+                            }
                             break;
                         case ConsoleKey.DownArrow:
                         case ConsoleKey.S:
-                            snk.direction = 3;
+                            if (snk.direction != 1)
+                            {
+                                snk.direction = 3;
+                            }
                             break;
                         case ConsoleKey.LeftArrow:
                         case ConsoleKey.A:
-                            snk.direction = 4;
+                            if (snk.direction != 2)
+                            {
+                                snk.direction = 4;
+                            }
                             break;
                         case ConsoleKey.RightArrow:
                         case ConsoleKey.D:
-                            snk.direction = 2;
+                            if (snk.direction != 4)
+                            {
+                                snk.direction = 2;
+                            }
                             break;
                         case ConsoleKey.Q:
                         case ConsoleKey.Escape:
@@ -132,11 +144,11 @@ namespace Snake
                     if (y == 0 || y == viewport.y - 1)
                     {
                         Console.Write("X");
-                    }                        
+                    }
                     else if (x == 0 || x == viewport.x - 1)
                     {
                         Console.Write("X");
-                    }                                 
+                    }
                 }
 
                 //Reset X to 0
@@ -146,7 +158,7 @@ namespace Snake
             //Jump screen back to top
             Console.SetCursorPosition(0, 0);
         }
-        
+
 
         static void drawSnake(Snake s)
         {
@@ -154,7 +166,7 @@ namespace Snake
             {
                 Console.SetCursorPosition(c.x, c.y);
                 Console.Write("o");
-                
+
             }
         }
 
@@ -186,153 +198,5 @@ namespace Snake
             Thread.Sleep(2000);
         }
     }
-
-    class Snake
-    {
-        public bool isAlive;        
-        private int size;
-        public int direction;
-        private coord head;
-        public readonly Queue<coord> the_queue;
-        private coord viewport;
-
-        public Snake(coord vp)
-        {
-            viewport = vp;
-
-            //Insert Frankenstein Reference Here.
-            isAlive = true;
-
-            //Set start position to center
-            head.x = viewport.x / 2;
-            head.y = viewport.y / 2;
-
-            //Generate random direction
-            Random rnd = new Random();
-            direction = rnd.Next(1, 4);
-
-            //Size always starts at 3 (including head)
-            size = 2;
-
-            //Generate queue            
-            the_queue = new Queue<coord>();
-        }
-
-        public Queue<coord> Move()
-        {
-            Queue<coord> deleted = new Queue<coord>();
-
-            //If snake has become too long, make shorter
-            while (the_queue.Count > size)
-            {
-                deleted.Enqueue(the_queue.Peek());
-                the_queue.Dequeue();
-            }
-
-            //Find next position to move to
-            coord next = nextPosition();
-
-            //Check for signs of death.
-            if (next.x <= 0 || next.x >= viewport.x - 1 || next.y <= 0 || next.y >= viewport.y - 1 || collidesWithSelf(next))
-            {
-                //Death is inevitable
-                isAlive = false;
-            }
-            else
-            {
-                //Put the next position into the queue
-                the_queue.Enqueue(next);          
-            }
-
-            return deleted;
-        }
-
-        private bool collidesWithSelf(coord n)
-        {
-            foreach (coord qc in the_queue)
-            {
-                if (qc.x == n.x && qc.y == n.y)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        
-        public bool checkCollidesWithFood(List<Food> fd)
-        {
-            foreach (Food f in fd)
-            {
-                if (head.x == f.position.x && head.y == f.position.y)
-                {
-                    size++;
-                    f.nom();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-        private coord nextPosition()
-        {
-            coord c = new coord();
-
-            switch(direction) {
-                case 1:
-                    //North/Up
-                    c.x = head.x;
-                    c.y = head.y--;
-                    break;
-                case 2:
-                    //East/Right
-                    c.x = head.x++;
-                    c.y = head.y;
-                    break;
-                case 3:
-                    //South/Down
-                    c.x = head.x;
-                    c.y = head.y++;
-                    break;
-                case 4:
-                    //West/Left
-                    c.x = head.x--;
-                    c.y = head.y;
-                    break;
-                default:
-                    throw new Exception("Invalid direction");
-            }
-            return c;           
-        }     
-    }
-
-    class Food
-    {
-        public coord position;
-        private coord viewport;
-
-        public Food(coord vp) {
-            viewport = vp;
-            setPosition();
-        }
-
-        private void setPosition()
-        {
-            Random rnd = new Random();
-            position.x = rnd.Next(1, viewport.x - 1);
-            position.y = rnd.Next(1, viewport.y - 1);
-        }
-
-        public void nom()
-        {
-            setPosition();   
-        }
-    }
-    
-    struct coord {
-        public int x;
-        public int y;
-    }
 }
+
