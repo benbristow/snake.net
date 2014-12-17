@@ -28,7 +28,7 @@ namespace Snake
 
             //Generate random direction
             Random rnd = new Random();
-            direction = rnd.Next(1, 4);
+            direction = rnd.Next(1, 5);
 
             //Size always starts at 3 (including head)
             size = 2;
